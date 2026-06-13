@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(uuid())
+  email       String       @unique
+  password    String
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  submissions Submission[]
+
+  @@map("users")
+}
+
+model Submission {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  filePath  String    @map("file_path")
+  fileType  String    @map("file_type")
+  fileName  String    @map("file_name")
+  symptoms  String
+  createdAt DateTime  @default(now()) @map("created_at")
+  analysis  Analysis?
+
+  @@index([userId])
+  @@map("submissions")
+}
+
+model Analysis {
+  id           String   @id @default(uuid())
+  submissionId String   @unique @map("submission_id")
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  medicines    Json
+  doctorAdvice String   @map("doctor_advice")
+  lifestyle    Json
+  diseases     Json
+  rawResponse  String   @map("raw_response")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("analyses")
+}

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+uploads/
+.env
+*.env.local
+*.log
+.DS_Store
+.output
+.nitro
+.vinxi
+.tanstack/**
+Health App Assignment.docx
+test-prescription*
