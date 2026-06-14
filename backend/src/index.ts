@@ -6,6 +6,7 @@ import { prisma } from './config/db';
 import { errorHandler } from './middleware/errorHandler';
 import { authRouter } from './routes/auth';
 import { submissionsRouter } from './routes/submissions';
+import { medicinesRouter } from './routes/medicines';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/submissions', submissionsRouter);
+app.use('/api/medicines', medicinesRouter);
 
 app.use(errorHandler);
 

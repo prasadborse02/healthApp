@@ -43,6 +43,36 @@ model Analysis {
   diseases     Json
   rawResponse  String   @map("raw_response")
   createdAt    DateTime @default(now()) @map("created_at")
+  medicineRecords Medicine[]
 
   @@map("analyses")
+}
+
+model Medicine {
+  id         String     @id @default(uuid())
+  analysisId String     @map("analysis_id")
+  analysis   Analysis   @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  name       String
+  dosage     String
+  frequency  String
+  duration   String
+  instructions String  @default("")
+  startDate  DateTime   @default(now()) @map("start_date")
+  reminders  Reminder[]
+
+  @@index([analysisId])
+  @@map("medicines")
+}
+
+model Reminder {
+  id          String   @id @default(uuid())
+  medicineId  String   @map("medicine_id")
+  medicine    Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  scheduledAt DateTime @map("scheduled_at")
+  status      String   @default("pending")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([medicineId])
+  @@index([scheduledAt])
+  @@map("reminders")
 }

@@ -74,3 +74,23 @@ export interface Submission {
   createdAt: string;
   analysis: Analysis | null;
 }
+
+export interface Reminder {
+  id: string;
+  medicineId: string;
+  scheduledAt: string;
+  status: "pending" | "taken" | "skipped";
+  createdAt: string;
+}
+
+export interface MedicineRecord {
+  id: string;
+  analysisId: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  instructions: string;
+  startDate: string;
+  reminders: Reminder[];
+}

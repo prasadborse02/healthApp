@@ -152,7 +152,7 @@ export async function analyzeSubmission(submissionId: string, userId: string) {
       doctorAdvice: analysisResult.doctorAdvice,
       lifestyle: analysisResult.lifestyle,
       diseases: analysisResult.diseases,
-      rawResponse: responseText,
+      rawResponse: JSON.stringify(JSON.parse(responseText)),
     },
   });
 

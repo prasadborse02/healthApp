@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { api, fileUrl, type Submission, type Analysis } from "@/lib/api";
+import { api, fileUrl, type Submission, type Analysis, type MedicineRecord } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,6 +16,7 @@ import {
 import {
   AlertTriangle,
   ArrowLeft,
+  Bell,
   Download,
   FileText,
   Loader2,
@@ -156,6 +157,28 @@ function SubmissionDetail() {
 }
 
 function AnalysisView({ analysis }: { analysis: Analysis }) {
+  const [settingUp, setSettingUp] = useState(false);
+  const [remindersSet, setRemindersSet] = useState(false);
+
+  const setupReminders = async () => {
+    setSettingUp(true);
+    try {
+      await api.post<MedicineRecord[]>(`/medicines/from-analysis/${analysis.id}`);
+      setRemindersSet(true);
+      toast.success("Medicine reminders created!");
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { error?: string } } };
+      if (err?.response?.data?.error?.includes("already")) {
+        setRemindersSet(true);
+        toast.info("Reminders already set up");
+      } else {
+        toast.error(err?.response?.data?.error || "Failed to set up reminders");
+      }
+    } finally {
+      setSettingUp(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div
@@ -229,6 +252,29 @@ function AnalysisView({ analysis }: { analysis: Analysis }) {
             ))}
           </ul>
         </Section>
+      )}
+
+      {analysis.medicines?.length > 0 && (
+        <div className="rounded-2xl border bg-card p-5 shadow-sm text-center">
+          {remindersSet ? (
+            <>
+              <p className="text-sm text-emerald-600 font-medium">Reminders set up successfully!</p>
+              <Link to="/medicines" className="mt-3 inline-block">
+                <Button variant="outline" size="sm">
+                  <Bell className="mr-2 h-4 w-4" /> View Medicines & Reminders
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <Button onClick={setupReminders} disabled={settingUp} variant="outline">
+              {settingUp ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Setting up...</>
+              ) : (
+                <><Bell className="mr-2 h-4 w-4" /> Set up dose reminders</>
+              )}
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

@@ -35,6 +35,13 @@ export function Navbar() {
               >
                 Dashboard
               </Link>
+              <Link
+                to="/medicines"
+                className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
+                activeProps={{ className: "bg-accent" }}
+              >
+                Medicines
+              </Link>
               <span className="ml-2 text-sm text-muted-foreground">{user.email}</span>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 Logout
@@ -75,6 +82,13 @@ export function Navbar() {
                   onClick={() => setOpen(false)}
                 >
                   Dashboard
+                </Link>
+                <Link
+                  to="/medicines"
+                  className="rounded-md px-3 py-2 text-sm hover:bg-accent"
+                  onClick={() => setOpen(false)}
+                >
+                  Medicines
                 </Link>
                 <div className="px-3 py-1 text-xs text-muted-foreground">
                   {user.email}

@@ -59,10 +59,14 @@ The frontend is a single-page React application served by nginx. It communicates
 - docker-compose orchestration for the full stack (PostgreSQL, backend, frontend)
 - Automatic database migrations on container start
 
+- Medicine records auto-generated from AI analysis output
+- Reminder schedule based on frequency and duration
+- Mark individual doses as taken or skipped
+- Medicines dashboard with progress tracking
+
 ### Not Implemented
 
-- Medicine reminders and dose tracking (mark taken/skipped)
-- Email notifications
+- Email/push notifications for reminders
 - OAuth / social login
 
 ---
