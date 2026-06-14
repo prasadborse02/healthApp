@@ -14,7 +14,12 @@ const app = express();
 
 app.use(cors({ origin: config.corsOrigin }));
 app.use(express.json({ limit: '1mb' }));
-app.use(pinoHttp({ logger }));
+app.use(
+  pinoHttp({
+    logger,
+    autoLogging: { ignore: (req) => req.url === '/api/health' },
+  }),
+);
 app.use('/uploads', express.static(path.resolve(config.uploadDir)));
 
 app.get('/api/health', (_req, res) => {
