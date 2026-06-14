@@ -90,10 +90,10 @@ function SubmissionDetail() {
       </Link>
 
       <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
             {isImage ? (
-              <img src={fileSrc} alt={sub.fileName} className="w-full object-contain" />
+              <img src={fileSrc} alt={sub.fileName} className="w-full max-h-[60vh] object-contain" />
             ) : (
               <div className="flex flex-col items-center gap-3 p-10 text-center">
                 <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary/10 text-primary">
@@ -118,13 +118,13 @@ function SubmissionDetail() {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           {!sub.analysis ? (
             <div className="rounded-2xl border bg-card p-8 text-center shadow-sm">
               <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
                 <Sparkles className="h-7 w-7" />
               </div>
-              <h2 className="mt-4 text-xl font-semibold">Ready for AI analysis</h2>
+              <h2 className="mt-4 text-lg sm:text-xl font-semibold">Ready for AI analysis</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Generate an AI summary of medicines, conditions, and lifestyle tips.
               </p>
@@ -209,25 +209,25 @@ function AnalysisView({ analysis }: { analysis: Analysis }) {
 
       {analysis.medicines?.length > 0 && (
         <Section title="Medicines">
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+            <Table className="min-w-[500px] text-xs sm:text-sm">
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Dosage</TableHead>
                   <TableHead>Frequency</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Instructions</TableHead>
+                  <TableHead className="hidden sm:table-cell">Duration</TableHead>
+                  <TableHead className="hidden sm:table-cell">Instructions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {analysis.medicines.map((m, i) => (
                   <TableRow key={i}>
-                    <TableCell className="font-medium">{m.name}</TableCell>
+                    <TableCell className="font-medium whitespace-nowrap">{m.name}</TableCell>
                     <TableCell>{m.dosage}</TableCell>
                     <TableCell>{m.frequency}</TableCell>
-                    <TableCell>{m.duration}</TableCell>
-                    <TableCell className="text-muted-foreground">{m.instructions}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{m.duration}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">{m.instructions}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

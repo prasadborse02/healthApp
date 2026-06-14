@@ -1,3 +1,4 @@
+import { Submission, Analysis } from '@prisma/client';
 import { prisma } from '../config/db';
 import { AppError } from '../middleware/errorHandler';
 
@@ -7,7 +8,7 @@ export async function create(
   fileType: string,
   fileName: string,
   symptoms: string,
-) {
+): Promise<Submission> {
   return prisma.submission.create({
     data: {
       userId,
@@ -19,7 +20,7 @@ export async function create(
   });
 }
 
-export async function listByUser(userId: string) {
+export async function listByUser(userId: string): Promise<(Submission & { analysis: Pick<Analysis, 'id' | 'createdAt'> | null })[]> {
   return prisma.submission.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' },
@@ -34,7 +35,7 @@ export async function listByUser(userId: string) {
   });
 }
 
-export async function getById(id: string, userId: string) {
+export async function getById(id: string, userId: string): Promise<Submission & { analysis: Analysis | null }> {
   const submission = await prisma.submission.findUnique({
     where: { id },
     include: {

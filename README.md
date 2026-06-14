@@ -6,18 +6,22 @@ A full-stack web application that lets users upload prescriptions, describe thei
 
 ## Architecture
 
-```
-Browser (React SPA)
-    |
-    |  REST / JSON + multipart/form-data
-    v
-Express API  ------>  Google Gemini API
-    |                 (prescription image + symptoms -> structured JSON)
-    v
-PostgreSQL 16
-    |
-    v
-Docker Volume (uploaded files)
+```mermaid
+flowchart TB
+    Browser["Browser (React SPA)"]
+    Nginx["Nginx (Port 80)"]
+    API["Express API (Port 3000)"]
+    Gemini["Google Gemini API"]
+    DB["PostgreSQL 16"]
+    Vol["Docker Volume (uploads)"]
+
+    Browser -->|"HTTP"| Nginx
+    Browser -->|"REST / JSON"| API
+    Nginx -->|"Static files"| Browser
+    API -->|"Prescription + Symptoms"| Gemini
+    Gemini -->|"Structured JSON"| API
+    API -->|"Prisma ORM"| DB
+    API -->|"File read/write"| Vol
 ```
 
 The frontend is a single-page React application served by nginx. It communicates with the Express backend over REST. Authentication uses stateless JWTs. When the user triggers an analysis, the backend reads the uploaded file from disk, encodes it as base64, sends it alongside the patient's symptoms to Google Gemini, parses the structured JSON response, and persists the result to PostgreSQL so subsequent page loads never re-call the LLM.
@@ -64,16 +68,11 @@ The frontend is a single-page React application served by nginx. It communicates
 - Mark individual doses as taken or skipped
 - Medicines dashboard with progress tracking
 
-### Not Implemented
-
-- Email/push notifications for reminders
-- OAuth / social login
-
 ---
 
 ## Data Model
 
-Three tables managed by Prisma:
+Five tables managed by Prisma:
 
 ### users
 
@@ -114,6 +113,33 @@ Index on `user_id` for efficient listing.
 
 One-to-one relationship: each submission has at most one analysis.
 
+### medicines
+
+| Column       | Type      | Notes                              |
+| ------------ | --------- | ---------------------------------- |
+| id           | UUID      | Primary key                        |
+| analysis_id  | UUID      | FK -> analyses.id (cascade delete) |
+| name         | TEXT      | Medicine name                      |
+| dosage       | TEXT      | Dosage amount                      |
+| frequency    | TEXT      | e.g., "twice daily"               |
+| duration     | TEXT      | e.g., "5 days"                    |
+| instructions | TEXT      | Usage instructions                 |
+| start_date   | TIMESTAMP | Default `now()`                    |
+
+Index on `analysis_id`.
+
+### reminders
+
+| Column       | Type      | Notes                              |
+| ------------ | --------- | ---------------------------------- |
+| id           | UUID      | Primary key                        |
+| medicine_id  | UUID      | FK -> medicines.id (cascade delete)|
+| scheduled_at | TIMESTAMP | When the dose is due               |
+| status       | TEXT      | "pending", "taken", or "skipped"  |
+| created_at   | TIMESTAMP | Default `now()`                    |
+
+Indexes on `medicine_id` and `scheduled_at`.
+
 ---
 
 ## API Endpoints
@@ -127,12 +153,15 @@ One-to-one relationship: each submission has at most one analysis.
 | GET    | `/api/submissions`            | JWT      | List current user's submissions                   |
 | GET    | `/api/submissions/:id`        | JWT      | Get single submission with its analysis           |
 | POST   | `/api/submissions/:id/analyze`| JWT      | Trigger Gemini AI analysis for a submission       |
+| GET    | `/api/medicines`                     | JWT      | List user's medicines with reminders          |
+| POST   | `/api/medicines/from-analysis/:id`   | JWT      | Create medicine records from an analysis       |
+| PATCH  | `/api/medicines/reminders/:id`       | JWT      | Update reminder status (taken/skipped)         |
 
 **Auth header format:** `Authorization: Bearer <token>`
 
 **Validation rules:**
 - Email must be a valid email address
-- Password must be at least 6 characters
+- Password must be at least 8 characters, contain uppercase, lowercase, and a number
 - Allowed file types: `image/jpeg`, `image/png`, `application/pdf`
 - Maximum file size: 10 MB
 - Symptoms field is required (non-empty string)

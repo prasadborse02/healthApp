@@ -14,7 +14,11 @@ export const Route = createFileRoute("/signup")({
 const schema = z
   .object({
     email: z.string().trim().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z.string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Must contain an uppercase letter")
+      .regex(/[a-z]/, "Must contain a lowercase letter")
+      .regex(/[0-9]/, "Must contain a number"),
     confirm: z.string(),
   })
   .refine((d) => d.password === d.confirm, {

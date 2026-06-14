@@ -1,5 +1,8 @@
+import { Medicine, Reminder } from '@prisma/client';
 import { prisma } from '../config/db';
 import { AppError } from '../middleware/errorHandler';
+
+type MedicineWithReminders = Medicine & { reminders: Reminder[] };
 
 interface MedicineEntry {
   name: string;
@@ -33,7 +36,7 @@ function getReminderTimes(timesPerDay: number): number[] {
   return [9];
 }
 
-export async function createFromAnalysis(analysisId: string, userId: string) {
+export async function createFromAnalysis(analysisId: string, userId: string): Promise<MedicineWithReminders[]> {
   const analysis = await prisma.analysis.findUnique({
     where: { id: analysisId },
     include: {
@@ -67,8 +70,12 @@ export async function createFromAnalysis(analysisId: string, userId: string) {
     for (let day = 0; day < durationDays; day++) {
       for (const hour of hours) {
         const scheduledAt = new Date(now);
-        scheduledAt.setDate(scheduledAt.getDate() + day);
-        scheduledAt.setHours(hour, 0, 0, 0);
+        scheduledAt.setUTCDate(scheduledAt.getUTCDate() + day);
+        scheduledAt.setUTCHours(hour, 0, 0, 0);
+        // Skip time slots that are already past on the first day
+        if (day === 0 && scheduledAt.getTime() <= now.getTime()) {
+          continue;
+        }
         reminderData.push({ scheduledAt });
       }
     }
@@ -95,7 +102,7 @@ export async function createFromAnalysis(analysisId: string, userId: string) {
   });
 }
 
-export async function listByUser(userId: string) {
+export async function listByUser(userId: string): Promise<MedicineWithReminders[]> {
   return prisma.medicine.findMany({
     where: {
       analysis: {
@@ -113,7 +120,7 @@ export async function updateReminderStatus(
   reminderId: string,
   userId: string,
   status: string,
-) {
+): Promise<Reminder> {
   if (status !== 'taken' && status !== 'skipped') {
     throw new AppError(400, 'Status must be "taken" or "skipped"');
   }

@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { Prisma } from '@prisma/client';
+import { Analysis, Prisma } from '@prisma/client';
 import { config } from '../config/env';
 import { prisma } from '../config/db';
 import { AppError } from '../middleware/errorHandler';
@@ -78,7 +78,7 @@ function parseAIResponse(responseText: string): AnalysisResult {
   return result as unknown as AnalysisResult;
 }
 
-export async function analyzeSubmission(submissionId: string, userId: string) {
+export async function analyzeSubmission(submissionId: string, userId: string): Promise<Analysis> {
   // Verify API key is configured
   if (!config.geminiApiKey) {
     throw new AppError(500, 'Gemini API key not configured');

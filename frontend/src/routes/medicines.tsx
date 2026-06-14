@@ -66,7 +66,7 @@ function MedicinesPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-bold tracking-tight">My Medicines</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">My Medicines</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Track your medications and mark doses as taken or skipped.
       </p>
@@ -113,10 +113,10 @@ function MedicineCard({
 
   return (
     <div className="rounded-2xl border bg-card shadow-sm">
-      <div className="flex items-start justify-between gap-4 border-b p-5">
-        <div>
-          <h3 className="text-lg font-semibold">{medicine.name}</h3>
-          <div className="mt-1 flex flex-wrap gap-2 text-sm text-muted-foreground">
+      <div className="flex items-start justify-between gap-3 border-b p-4 sm:p-5">
+        <div className="min-w-0">
+          <h3 className="text-base sm:text-lg font-semibold truncate">{medicine.name}</h3>
+          <div className="mt-1 flex flex-wrap gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
             <span>{medicine.dosage}</span>
             <span>--</span>
             <span>{medicine.frequency}</span>
@@ -138,11 +138,60 @@ function MedicineCard({
       </div>
 
       {upcoming.length > 0 && (
-        <div className="p-5">
+        <div className="p-4 sm:p-5">
           <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Upcoming doses
           </h4>
-          <div className="overflow-x-auto">
+          {/* Card layout for mobile, table for larger screens */}
+          <div className="space-y-3 sm:hidden">
+            {upcoming.slice(0, 6).map((r) => {
+              const scheduled = new Date(r.scheduledAt);
+              const isPast = scheduled < now;
+              return (
+                <div key={r.id} className="flex items-center justify-between gap-2 rounded-lg border p-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <span className={`text-sm ${isPast ? "text-amber-600 font-medium" : ""}`}>
+                        {scheduled.toLocaleDateString()} {scheduled.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex gap-1.5">
+                      <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs">
+                        Pending
+                      </Badge>
+                      {isPast && (
+                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-xs">
+                          Overdue
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 gap-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 px-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                      onClick={() => onUpdateStatus(r.id, "taken")}
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      <span className="sr-only">Taken</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 px-2 text-slate-500 hover:bg-slate-50"
+                      onClick={() => onUpdateStatus(r.id, "skipped")}
+                    >
+                      <SkipForward className="h-3.5 w-3.5" />
+                      <span className="sr-only">Skip</span>
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="hidden sm:block overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -210,7 +259,7 @@ function MedicineCard({
       )}
 
       {past.length > 0 && (
-        <div className="border-t p-5">
+        <div className="border-t p-4 sm:p-5">
           <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             History ({past.length} doses)
           </h4>
