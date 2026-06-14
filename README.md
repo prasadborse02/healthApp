@@ -222,8 +222,8 @@ Step-by-step instructions for deploying to a fresh **t2.micro** Ubuntu instance 
 
 ### 1. Launch an EC2 Instance
 
-- AMI: Ubuntu 22.04 LTS (or later)
-- Instance type: t2.micro (free tier eligible)
+- AMI: Ubuntu 24.04 LTS (or 26.04 LTS)
+- Instance type: t3.micro (free tier eligible)
 - Storage: 20 GB gp3
 
 ### 2. Configure Security Group
