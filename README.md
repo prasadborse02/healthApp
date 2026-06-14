@@ -38,7 +38,7 @@ The frontend is a single-page React application served by nginx. It communicates
 | Auth           | JWT (jsonwebtoken) + bcrypt                        |
 | File Upload    | Multer (disk storage, 10 MB limit)                |
 | HTTP Client    | Axios (frontend)                                   |
-| Containerization | Docker multi-stage builds, docker-compose 3.8   |
+| Containerization | Docker multi-stage builds, Docker Compose   |
 | Frontend Server  | nginx (Alpine)                                  |
 
 ---
@@ -218,7 +218,7 @@ npm run dev                # Starts on port 5173
 
 ## EC2 Deployment Runbook
 
-Step-by-step instructions for deploying to a fresh **t2.micro** Ubuntu instance on AWS.
+Step-by-step instructions for deploying to a fresh **t3.micro** Ubuntu instance on AWS.
 
 ### 1. Launch an EC2 Instance
 

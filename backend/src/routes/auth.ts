@@ -1,7 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { z, ZodError } from 'zod';
+import { z } from 'zod';
 import * as authService from '../services/auth.service';
 import { AppError } from '../middleware/errorHandler';
+import { formatZodErrors } from '../utils/validation';
 
 const authRouter = Router();
 
@@ -9,18 +10,6 @@ const authSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
-
-function formatZodErrors(error: ZodError): Record<string, string[]> {
-  const formatted: Record<string, string[]> = {};
-  for (const issue of error.issues) {
-    const field = issue.path.join('.');
-    if (!formatted[field]) {
-      formatted[field] = [];
-    }
-    formatted[field].push(issue.message);
-  }
-  return formatted;
-}
 
 authRouter.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
   try {

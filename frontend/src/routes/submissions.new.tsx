@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { api } from "@/lib/api";
@@ -28,6 +28,12 @@ function NewSubmission() {
   const [dragOver, setDragOver] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const handleFile = (f: File | null) => {
     setError(null);

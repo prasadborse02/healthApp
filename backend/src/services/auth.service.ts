@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { config } from '../config/env';
+import { prisma } from '../config/db';
 import { AppError } from '../middleware/errorHandler';
-
-const prisma = new PrismaClient();
 
 const BCRYPT_ROUNDS = 10;
 

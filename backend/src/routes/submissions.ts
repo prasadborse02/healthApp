@@ -1,3 +1,4 @@
+import path from 'path';
 import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
@@ -6,13 +7,14 @@ import { upload } from '../middleware/upload';
 import * as submissionService from '../services/submission.service';
 import { analyzeSubmission } from '../services/gemini.service';
 import { AppError } from '../middleware/errorHandler';
+import { formatZodErrors } from '../utils/validation';
 
 const router = Router();
 
 router.use(authenticate);
 
 const symptomsSchema = z.object({
-  symptoms: z.string().min(1, 'Symptoms are required'),
+  symptoms: z.string().min(1, 'Symptoms are required').max(5000, 'Symptoms text is too long'),
 });
 
 // POST / — Upload file + create submission
@@ -43,13 +45,7 @@ router.post(
 
       const parsed = symptomsSchema.safeParse(req.body);
       if (!parsed.success) {
-        const errors: Record<string, string[]> = {};
-        for (const issue of parsed.error.issues) {
-          const field = issue.path.join('.');
-          if (!errors[field]) errors[field] = [];
-          errors[field].push(issue.message);
-        }
-        throw new AppError(400, 'Validation failed', errors);
+        throw new AppError(400, 'Validation failed', formatZodErrors(parsed.error));
       }
 
       const submission = await submissionService.create(
@@ -78,9 +74,9 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // GET /:id — Get single submission with analysis
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
-    const submission = await submissionService.getById(req.params.id as string, req.userId!);
+    const submission = await submissionService.getById(req.params.id, req.userId!);
     res.status(200).json(submission);
   } catch (err) {
     next(err);
@@ -88,10 +84,20 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // POST /:id/analyze — Trigger AI analysis
-router.post('/:id/analyze', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:id/analyze', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
-    const analysis = await analyzeSubmission(req.params.id as string, req.userId!);
+    const analysis = await analyzeSubmission(req.params.id, req.userId!);
     res.status(200).json(analysis);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /:id/file — Serve uploaded file (authenticated)
+router.get('/:id/file', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+  try {
+    const submission = await submissionService.getById(req.params.id, req.userId!);
+    res.sendFile(path.resolve(submission.filePath));
   } catch (err) {
     next(err);
   }

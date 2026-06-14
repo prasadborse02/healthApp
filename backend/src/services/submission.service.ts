@@ -1,7 +1,5 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { prisma } from '../config/db';
 import { AppError } from '../middleware/errorHandler';
-
-const prisma = new PrismaClient();
 
 export async function create(
   userId: string,
@@ -49,25 +47,4 @@ export async function getById(id: string, userId: string) {
   }
 
   return submission;
-}
-
-export interface AnalysisData {
-  medicines: Prisma.InputJsonValue;
-  doctorAdvice: string;
-  lifestyle: Prisma.InputJsonValue;
-  diseases: Prisma.InputJsonValue;
-  rawResponse: string;
-}
-
-export async function saveAnalysis(submissionId: string, analysisData: AnalysisData) {
-  return prisma.analysis.create({
-    data: {
-      submissionId,
-      medicines: analysisData.medicines,
-      doctorAdvice: analysisData.doctorAdvice,
-      lifestyle: analysisData.lifestyle,
-      diseases: analysisData.diseases,
-      rawResponse: analysisData.rawResponse,
-    },
-  });
 }

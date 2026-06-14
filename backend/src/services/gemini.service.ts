@@ -1,11 +1,10 @@
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { config } from '../config/env';
+import { prisma } from '../config/db';
 import { AppError } from '../middleware/errorHandler';
-
-const prisma = new PrismaClient();
 
 interface MedicineInfo {
   name: string;
@@ -61,7 +60,6 @@ function parseAIResponse(responseText: string): AnalysisResult {
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    console.error('Failed to parse AI response:', cleaned);
     throw new AppError(502, 'Failed to parse AI response');
   }
 
@@ -74,12 +72,6 @@ function parseAIResponse(responseText: string): AnalysisResult {
     !Array.isArray(result.lifestyle) ||
     !Array.isArray(result.diseases)
   ) {
-    console.error('Validation failed. Fields:', {
-      medicines: typeof result.medicines,
-      doctorAdvice: typeof result.doctorAdvice,
-      lifestyle: typeof result.lifestyle,
-      diseases: typeof result.diseases,
-    });
     throw new AppError(502, 'Failed to parse AI response');
   }
 
@@ -113,11 +105,12 @@ export async function analyzeSubmission(submissionId: string, userId: string) {
   // Read the uploaded file from disk
   const filePath = path.resolve(submission.filePath);
 
-  if (!fs.existsSync(filePath)) {
+  let fileBuffer: Buffer;
+  try {
+    fileBuffer = await fs.readFile(filePath);
+  } catch {
     throw new AppError(404, 'Uploaded file not found');
   }
-
-  const fileBuffer = fs.readFileSync(filePath);
   const base64Data = fileBuffer.toString('base64');
   const mimeType = getMimeType(submission.fileType);
 
