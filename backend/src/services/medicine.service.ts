@@ -30,13 +30,36 @@ function parseDurationDays(duration: string): number {
   return num;
 }
 
-function getReminderTimes(timesPerDay: number): number[] {
-  if (timesPerDay === 3) return [9, 14, 21];
-  if (timesPerDay === 2) return [9, 21];
-  return [9];
+function getTimeOfDayHint(frequency: string, instructions: string): string | null {
+  const text = `${frequency} ${instructions}`.toLowerCase();
+  if (text.includes('bedtime') || text.includes('before bed') || text.includes('at night')) return 'night';
+  if (text.includes('morning')) return 'morning';
+  if (text.includes('evening')) return 'evening';
+  if (text.includes('after lunch') || text.includes('afternoon')) return 'afternoon';
+  return null;
 }
 
-export async function createFromAnalysis(analysisId: string, userId: string): Promise<MedicineWithReminders[]> {
+function getReminderTimes(timesPerDay: number, frequency: string, instructions: string): number[] {
+  if (timesPerDay === 3) return [9, 14, 21];
+  if (timesPerDay === 2) {
+    const text = `${frequency} ${instructions}`.toLowerCase();
+    const times: number[] = [];
+    if (text.includes('morning')) times.push(9);
+    if (text.includes('afternoon') || text.includes('lunch')) times.push(14);
+    if (text.includes('evening')) times.push(18);
+    if (text.includes('night') || text.includes('bedtime') || text.includes('before bed')) times.push(21);
+    if (times.length === 2) return times.sort((a, b) => a - b);
+    return [9, 21]; // default morning & night
+  }
+  // Once daily — use time-of-day hint from instructions
+  const hint = getTimeOfDayHint(frequency, instructions);
+  if (hint === 'night') return [21];
+  if (hint === 'evening') return [18];
+  if (hint === 'afternoon') return [14];
+  return [9]; // default to morning
+}
+
+export async function createFromAnalysis(analysisId: string, userId: string, timezoneOffset: number = 0): Promise<MedicineWithReminders[]> {
   const analysis = await prisma.analysis.findUnique({
     where: { id: analysisId },
     include: {
@@ -64,16 +87,24 @@ export async function createFromAnalysis(analysisId: string, userId: string): Pr
   for (const med of medicinesData) {
     const timesPerDay = parseFrequency(med.frequency);
     const durationDays = parseDurationDays(med.duration);
-    const hours = getReminderTimes(timesPerDay);
+    const localHours = getReminderTimes(timesPerDay, med.frequency, med.instructions ?? '');
+
+    // Convert local hours to UTC by applying timezone offset
+    // timezoneOffset is minutes from UTC (e.g., -330 for IST = UTC+5:30)
+    // So UTC hour = local hour + (offset / 60)
+    const offsetMinutes = timezoneOffset;
 
     const reminderData: { scheduledAt: Date }[] = [];
     for (let day = 0; day < durationDays; day++) {
-      for (const hour of hours) {
+      for (const localHour of localHours) {
         const scheduledAt = new Date(now);
         scheduledAt.setUTCDate(scheduledAt.getUTCDate() + day);
-        scheduledAt.setUTCHours(hour, 0, 0, 0);
-        // Skip time slots that are already past on the first day
-        if (day === 0 && scheduledAt.getTime() <= now.getTime()) {
+        // Set the time in UTC that corresponds to localHour in user's timezone
+        const utcMinutes = localHour * 60 + offsetMinutes;
+        scheduledAt.setUTCHours(0, 0, 0, 0);
+        scheduledAt.setUTCMinutes(utcMinutes);
+        // Skip time slots that are already past
+        if (scheduledAt.getTime() <= now.getTime()) {
           continue;
         }
         reminderData.push({ scheduledAt });

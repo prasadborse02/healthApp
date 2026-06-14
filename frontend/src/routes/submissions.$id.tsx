@@ -163,7 +163,9 @@ function AnalysisView({ analysis }: { analysis: Analysis }) {
   const setupReminders = async () => {
     setSettingUp(true);
     try {
-      await api.post<MedicineRecord[]>(`/medicines/from-analysis/${analysis.id}`);
+      await api.post<MedicineRecord[]>(`/medicines/from-analysis/${analysis.id}`, {
+        timezoneOffset: new Date().getTimezoneOffset(),
+      });
       setRemindersSet(true);
       toast.success("Medicine reminders created!");
     } catch (e: unknown) {
