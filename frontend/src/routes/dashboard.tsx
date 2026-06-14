@@ -1,13 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { api, type Submission } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, Loader2, Inbox } from "lucide-react";
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { api, type Submission } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Plus, Loader2, Inbox } from 'lucide-react';
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute('/dashboard')({
   component: () => (
     <ProtectedRoute>
       <Dashboard />
@@ -20,10 +20,10 @@ function Dashboard() {
 
   useEffect(() => {
     api
-      .get<Submission[]>("/submissions")
+      .get<Submission[]>('/submissions')
       .then((r) => setItems(r.data))
       .catch((e) => {
-        toast.error(e?.response?.data?.error || "Failed to load submissions");
+        toast.error(e?.response?.data?.error || 'Failed to load submissions');
         setItems([]);
       });
   }, []);
@@ -83,14 +83,10 @@ function SubmissionCard({ s }: { s: Submission }) {
                 Analyzed
               </Badge>
             ) : (
-              <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">
-                Pending
-              </Badge>
+              <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Pending</Badge>
             )}
           </div>
-          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-            {s.symptoms}
-          </p>
+          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{s.symptoms}</p>
           <p className="mt-2 text-xs text-muted-foreground">
             {new Date(s.createdAt).toLocaleString()}
           </p>

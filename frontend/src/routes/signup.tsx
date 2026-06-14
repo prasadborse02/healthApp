@@ -1,37 +1,38 @@
-import { createFileRoute, Link, useNavigate, Navigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { z } from "zod";
-import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { AuthShell, Field } from "./login";
+import { createFileRoute, Link, useNavigate, Navigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
+import { AuthShell, Field } from './login';
 
-export const Route = createFileRoute("/signup")({
+export const Route = createFileRoute('/signup')({
   component: SignupPage,
 });
 
 const schema = z
   .object({
-    email: z.string().trim().email("Invalid email address"),
-    password: z.string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Must contain an uppercase letter")
-      .regex(/[a-z]/, "Must contain a lowercase letter")
-      .regex(/[0-9]/, "Must contain a number"),
+    email: z.string().trim().email('Invalid email address'),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Must contain an uppercase letter')
+      .regex(/[a-z]/, 'Must contain a lowercase letter')
+      .regex(/[0-9]/, 'Must contain a number'),
     confirm: z.string(),
   })
   .refine((d) => d.password === d.confirm, {
-    message: "Passwords do not match",
-    path: ["confirm"],
+    message: 'Passwords do not match',
+    path: ['confirm'],
   });
 
 function SignupPage() {
   const { signup, token } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -52,12 +53,12 @@ function SignupPage() {
     setSubmitting(true);
     try {
       await signup(parsed.data.email, parsed.data.password);
-      toast.success("Account created!");
-      navigate({ to: "/dashboard" });
+      toast.success('Account created!');
+      navigate({ to: '/dashboard' });
     } catch (err: any) {
       const data = err?.response?.data;
       if (err?.response?.status === 409) {
-        setErrors({ email: data?.error || "Email already in use" });
+        setErrors({ email: data?.error || 'Email already in use' });
       } else if (data?.errors) {
         const fe: Record<string, string> = {};
         Object.entries(data.errors).forEach(([k, v]) => {
@@ -65,7 +66,7 @@ function SignupPage() {
         });
         setErrors(fe);
       } else {
-        toast.error(data?.error || "Signup failed");
+        toast.error(data?.error || 'Signup failed');
       }
     } finally {
       setSubmitting(false);
@@ -75,15 +76,39 @@ function SignupPage() {
   return (
     <AuthShell title="Create your account" subtitle="Start analyzing prescriptions in seconds">
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <Field id="email" label="Email" type="email" value={email} onChange={setEmail} error={errors.email} autoComplete="email" />
-        <Field id="password" label="Password" type="password" value={password} onChange={setPassword} error={errors.password} autoComplete="new-password" />
-        <Field id="confirm" label="Confirm password" type="password" value={confirm} onChange={setConfirm} error={errors.confirm} autoComplete="new-password" />
+        <Field
+          id="email"
+          label="Email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          error={errors.email}
+          autoComplete="email"
+        />
+        <Field
+          id="password"
+          label="Password"
+          type="password"
+          value={password}
+          onChange={setPassword}
+          error={errors.password}
+          autoComplete="new-password"
+        />
+        <Field
+          id="confirm"
+          label="Confirm password"
+          type="password"
+          value={confirm}
+          onChange={setConfirm}
+          error={errors.confirm}
+          autoComplete="new-password"
+        />
         <Button type="submit" className="w-full" disabled={submitting}>
           {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Create account
         </Button>
         <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link to="/login" className="font-medium text-primary hover:underline">
             Sign in
           </Link>

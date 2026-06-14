@@ -1,15 +1,15 @@
-import axios from "axios";
+import axios from 'axios';
 
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:3000/api`;
+  import.meta.env.VITE_API_URL ||
+  `${window.location.protocol}//${window.location.hostname}:3000/api`;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
 api.interceptors.request.use((config) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("hc_token") : null;
+  const token = typeof window !== 'undefined' ? localStorage.getItem('hc_token') : null;
   if (token) {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
@@ -20,11 +20,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    if (error?.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("hc_token");
-      localStorage.removeItem("hc_user");
-      if (!window.location.pathname.startsWith("/login")) {
-        window.location.href = "/login";
+    if (error?.response?.status === 401 && typeof window !== 'undefined') {
+      localStorage.removeItem('hc_token');
+      localStorage.removeItem('hc_user');
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);
@@ -32,9 +32,9 @@ api.interceptors.response.use(
 );
 
 export function fileUrl(filePath: string) {
-  const origin = API_BASE_URL.replace(/\/api\/?$/, "");
+  const origin = API_BASE_URL.replace(/\/api\/?$/, '');
   // Extract filename from absolute or relative path and serve via /uploads/
-  const fileName = filePath.split("/").pop();
+  const fileName = filePath.split('/').pop();
   return `${origin}/uploads/${fileName}`;
 }
 
@@ -79,7 +79,7 @@ export interface Reminder {
   id: string;
   medicineId: string;
   scheduledAt: string;
-  status: "pending" | "taken" | "skipped";
+  status: 'pending' | 'taken' | 'skipped';
   createdAt: string;
 }
 

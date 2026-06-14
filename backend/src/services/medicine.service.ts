@@ -32,7 +32,8 @@ function parseDurationDays(duration: string): number {
 
 function getTimeOfDayHint(frequency: string, instructions: string): string | null {
   const text = `${frequency} ${instructions}`.toLowerCase();
-  if (text.includes('bedtime') || text.includes('before bed') || text.includes('at night')) return 'night';
+  if (text.includes('bedtime') || text.includes('before bed') || text.includes('at night'))
+    return 'night';
   if (text.includes('morning')) return 'morning';
   if (text.includes('evening')) return 'evening';
   if (text.includes('after lunch') || text.includes('afternoon')) return 'afternoon';
@@ -47,7 +48,8 @@ function getReminderTimes(timesPerDay: number, frequency: string, instructions: 
     if (text.includes('morning')) times.push(9);
     if (text.includes('afternoon') || text.includes('lunch')) times.push(14);
     if (text.includes('evening')) times.push(18);
-    if (text.includes('night') || text.includes('bedtime') || text.includes('before bed')) times.push(21);
+    if (text.includes('night') || text.includes('bedtime') || text.includes('before bed'))
+      times.push(21);
     if (times.length === 2) return times.sort((a, b) => a - b);
     return [9, 21]; // default morning & night
   }
@@ -59,7 +61,11 @@ function getReminderTimes(timesPerDay: number, frequency: string, instructions: 
   return [9]; // default to morning
 }
 
-export async function createFromAnalysis(analysisId: string, userId: string, timezoneOffset: number = 0): Promise<MedicineWithReminders[]> {
+export async function createFromAnalysis(
+  analysisId: string,
+  userId: string,
+  timezoneOffset: number = 0,
+): Promise<MedicineWithReminders[]> {
   const analysis = await prisma.analysis.findUnique({
     where: { id: analysisId },
     include: {

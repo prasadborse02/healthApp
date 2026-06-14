@@ -20,7 +20,9 @@ export async function create(
   });
 }
 
-export async function listByUser(userId: string): Promise<(Submission & { analysis: Pick<Analysis, 'id' | 'createdAt'> | null })[]> {
+export async function listByUser(
+  userId: string,
+): Promise<(Submission & { analysis: Pick<Analysis, 'id' | 'createdAt'> | null })[]> {
   return prisma.submission.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' },
@@ -35,7 +37,10 @@ export async function listByUser(userId: string): Promise<(Submission & { analys
   });
 }
 
-export async function getById(id: string, userId: string): Promise<Submission & { analysis: Analysis | null }> {
+export async function getById(
+  id: string,
+  userId: string,
+): Promise<Submission & { analysis: Analysis | null }> {
   const submission = await prisma.submission.findUnique({
     where: { id },
     include: {

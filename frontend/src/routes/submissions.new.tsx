@@ -1,14 +1,14 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { api } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { FileText, ImageIcon, Loader2, UploadCloud, X } from "lucide-react";
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { api } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { FileText, ImageIcon, Loader2, UploadCloud, X } from 'lucide-react';
 
-export const Route = createFileRoute("/submissions/new")({
+export const Route = createFileRoute('/submissions/new')({
   component: () => (
     <ProtectedRoute>
       <NewSubmission />
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/submissions/new")({
   ),
 });
 
-const ACCEPTED = ["image/jpeg", "image/png", "application/pdf"];
+const ACCEPTED = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_BYTES = 10 * 1024 * 1024;
 
 function NewSubmission() {
@@ -24,7 +24,7 @@ function NewSubmission() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [symptoms, setSymptoms] = useState("");
+  const [symptoms, setSymptoms] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,15 +39,15 @@ function NewSubmission() {
     setError(null);
     if (!f) return;
     if (!ACCEPTED.includes(f.type)) {
-      setError("Only JPG, PNG, or PDF files are allowed.");
+      setError('Only JPG, PNG, or PDF files are allowed.');
       return;
     }
     if (f.size > MAX_BYTES) {
-      setError("File size exceeds the 10MB limit.");
+      setError('File size exceeds the 10MB limit.');
       return;
     }
     setFile(f);
-    if (f.type.startsWith("image/")) {
+    if (f.type.startsWith('image/')) {
       const url = URL.createObjectURL(f);
       setPreview(url);
     } else {
@@ -59,31 +59,31 @@ function NewSubmission() {
     setFile(null);
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
-    if (inputRef.current) inputRef.current.value = "";
+    if (inputRef.current) inputRef.current.value = '';
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      setError("Please choose a file.");
+      setError('Please choose a file.');
       return;
     }
     if (!symptoms.trim()) {
-      setError("Please describe your symptoms.");
+      setError('Please describe your symptoms.');
       return;
     }
     setSubmitting(true);
     try {
       const fd = new FormData();
-      fd.append("file", file);
-      fd.append("symptoms", symptoms.trim());
-      const { data } = await api.post("/submissions", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
+      fd.append('file', file);
+      fd.append('symptoms', symptoms.trim());
+      const { data } = await api.post('/submissions', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-      toast.success("Submission uploaded");
-      navigate({ to: "/submissions/$id", params: { id: data.id } });
+      toast.success('Submission uploaded');
+      navigate({ to: '/submissions/$id', params: { id: data.id } });
     } catch (err: any) {
-      toast.error(err?.response?.data?.error || "Upload failed");
+      toast.error(err?.response?.data?.error || 'Upload failed');
     } finally {
       setSubmitting(false);
     }
@@ -111,7 +111,7 @@ function NewSubmission() {
               handleFile(e.dataTransfer.files?.[0] ?? null);
             }}
             className={`mt-2 rounded-2xl border-2 border-dashed p-8 text-center transition ${
-              dragOver ? "border-primary bg-primary/5" : "border-border bg-card"
+              dragOver ? 'border-primary bg-primary/5' : 'border-border bg-card'
             }`}
           >
             {file ? (
@@ -133,7 +133,13 @@ function NewSubmission() {
                     {(file.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
-                <Button type="button" variant="ghost" size="icon" onClick={clearFile} aria-label="Remove file">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={clearFile}
+                  aria-label="Remove file"
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -194,7 +200,7 @@ function NewSubmission() {
         )}
 
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => navigate({ to: "/dashboard" })}>
+          <Button type="button" variant="outline" onClick={() => navigate({ to: '/dashboard' })}>
             Cancel
           </Button>
           <Button type="submit" disabled={submitting}>

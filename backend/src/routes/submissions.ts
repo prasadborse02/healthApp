@@ -84,14 +84,17 @@ router.get('/:id', async (req: Request<{ id: string }>, res: Response, next: Nex
 });
 
 // POST /:id/analyze — Trigger AI analysis
-router.post('/:id/analyze', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
-  try {
-    const analysis = await analyzeSubmission(req.params.id, req.userId!);
-    res.status(200).json(analysis);
-  } catch (err) {
-    next(err);
-  }
-});
+router.post(
+  '/:id/analyze',
+  async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+    try {
+      const analysis = await analyzeSubmission(req.params.id, req.userId!);
+      res.status(200).json(analysis);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 // GET /:id/file — Serve uploaded file (authenticated)
 router.get('/:id/file', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {

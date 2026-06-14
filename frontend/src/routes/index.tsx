@@ -1,9 +1,9 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { HeartPulse, Sparkles, ShieldCheck } from "lucide-react";
+import { createFileRoute, Link, Navigate } from '@tanstack/react-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { HeartPulse, Sparkles, ShieldCheck } from 'lucide-react';
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   component: Index,
 });
 
@@ -20,14 +20,14 @@ function Index() {
           <Sparkles className="h-4 w-4" /> AI-powered prescription analysis
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
-          Your personal{" "}
+          Your personal{' '}
           <span className="bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">
             Health Companion
           </span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          Upload a prescription, describe your symptoms, and get an AI-generated
-          breakdown of medications, conditions, and lifestyle suggestions in seconds.
+          Upload a prescription, describe your symptoms, and get an AI-generated breakdown of
+          medications, conditions, and lifestyle suggestions in seconds.
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link to="/signup">
@@ -42,14 +42,23 @@ function Index() {
 
         <div className="mt-16 grid gap-6 sm:grid-cols-3">
           {[
-            { icon: HeartPulse, title: "Personalized", body: "Tailored to your prescription and symptoms." },
-            { icon: Sparkles, title: "Instant insight", body: "AI summary of medicines and conditions." },
-            { icon: ShieldCheck, title: "Private", body: "Your data stays secured to your account." },
+            {
+              icon: HeartPulse,
+              title: 'Personalized',
+              body: 'Tailored to your prescription and symptoms.',
+            },
+            {
+              icon: Sparkles,
+              title: 'Instant insight',
+              body: 'AI summary of medicines and conditions.',
+            },
+            {
+              icon: ShieldCheck,
+              title: 'Private',
+              body: 'Your data stays secured to your account.',
+            },
           ].map((f) => (
-            <div
-              key={f.title}
-              className="rounded-2xl border bg-card p-6 text-left shadow-sm"
-            >
+            <div key={f.title} className="rounded-2xl border bg-card p-6 text-left shadow-sm">
               <f.icon className="h-6 w-6 text-primary" />
               <h3 className="mt-3 font-semibold">{f.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{f.body}</p>

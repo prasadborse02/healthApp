@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { api, type MedicineRecord } from "@/lib/api";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { createFileRoute } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { api, type MedicineRecord } from '@/lib/api';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -12,10 +12,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Check, Clock, Loader2, Pill, SkipForward, X } from "lucide-react";
+} from '@/components/ui/table';
+import { Check, Clock, Loader2, Pill, SkipForward, X } from 'lucide-react';
 
-export const Route = createFileRoute("/medicines")({
+export const Route = createFileRoute('/medicines')({
   component: () => (
     <ProtectedRoute>
       <MedicinesPage />
@@ -28,31 +28,29 @@ function MedicinesPage() {
 
   useEffect(() => {
     api
-      .get<MedicineRecord[]>("/medicines")
+      .get<MedicineRecord[]>('/medicines')
       .then((r) => setMedicines(r.data))
       .catch((e) => {
-        toast.error(e?.response?.data?.error || "Failed to load medicines");
+        toast.error(e?.response?.data?.error || 'Failed to load medicines');
         setMedicines([]);
       });
   }, []);
 
-  const updateStatus = async (reminderId: string, status: "taken" | "skipped") => {
+  const updateStatus = async (reminderId: string, status: 'taken' | 'skipped') => {
     try {
       await api.patch(`/medicines/reminders/${reminderId}`, { status });
       setMedicines((prev) =>
         prev
           ? prev.map((m) => ({
               ...m,
-              reminders: m.reminders.map((r) =>
-                r.id === reminderId ? { ...r, status } : r,
-              ),
+              reminders: m.reminders.map((r) => (r.id === reminderId ? { ...r, status } : r)),
             }))
           : prev,
       );
       toast.success(`Dose marked as ${status}`);
     } catch (e: unknown) {
       const err = e as { response?: { data?: { error?: string } } };
-      toast.error(err?.response?.data?.error || "Failed to update");
+      toast.error(err?.response?.data?.error || 'Failed to update');
     }
   };
 
@@ -97,17 +95,17 @@ function MedicineCard({
   onUpdateStatus,
 }: {
   medicine: MedicineRecord;
-  onUpdateStatus: (reminderId: string, status: "taken" | "skipped") => void;
+  onUpdateStatus: (reminderId: string, status: 'taken' | 'skipped') => void;
 }) {
   const now = new Date();
   const upcoming = medicine.reminders
-    .filter((r) => r.status === "pending")
+    .filter((r) => r.status === 'pending')
     .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
   const past = medicine.reminders
-    .filter((r) => r.status !== "pending")
+    .filter((r) => r.status !== 'pending')
     .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
 
-  const takenCount = medicine.reminders.filter((r) => r.status === "taken").length;
+  const takenCount = medicine.reminders.filter((r) => r.status === 'taken').length;
   const total = medicine.reminders.length;
   const progress = total > 0 ? Math.round((takenCount / total) * 100) : 0;
 
@@ -124,9 +122,7 @@ function MedicineCard({
             <span>{medicine.duration}</span>
           </div>
           {medicine.instructions && (
-            <p className="mt-1 text-sm text-muted-foreground italic">
-              {medicine.instructions}
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground italic">{medicine.instructions}</p>
           )}
         </div>
         <div className="text-right text-sm">
@@ -148,12 +144,19 @@ function MedicineCard({
               const scheduled = new Date(r.scheduledAt);
               const isPast = scheduled < now;
               return (
-                <div key={r.id} className="flex items-center justify-between gap-2 rounded-lg border p-3">
+                <div
+                  key={r.id}
+                  className="flex items-center justify-between gap-2 rounded-lg border p-3"
+                >
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <span className={`text-sm ${isPast ? "text-amber-600 font-medium" : ""}`}>
-                        {scheduled.toLocaleDateString()} {scheduled.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      <span className={`text-sm ${isPast ? 'text-amber-600 font-medium' : ''}`}>
+                        {scheduled.toLocaleDateString()}{' '}
+                        {scheduled.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </span>
                     </div>
                     <div className="mt-1 flex gap-1.5">
@@ -172,7 +175,7 @@ function MedicineCard({
                       size="sm"
                       variant="outline"
                       className="h-8 px-2 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
-                      onClick={() => onUpdateStatus(r.id, "taken")}
+                      onClick={() => onUpdateStatus(r.id, 'taken')}
                     >
                       <Check className="h-3.5 w-3.5" />
                       <span className="sr-only">Taken</span>
@@ -181,7 +184,7 @@ function MedicineCard({
                       size="sm"
                       variant="outline"
                       className="h-8 px-2 text-slate-500 hover:bg-slate-50"
-                      onClick={() => onUpdateStatus(r.id, "skipped")}
+                      onClick={() => onUpdateStatus(r.id, 'skipped')}
                     >
                       <SkipForward className="h-3.5 w-3.5" />
                       <span className="sr-only">Skip</span>
@@ -209,8 +212,12 @@ function MedicineCard({
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span className={isPast ? "text-amber-600 font-medium" : ""}>
-                            {scheduled.toLocaleDateString()} {scheduled.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          <span className={isPast ? 'text-amber-600 font-medium' : ''}>
+                            {scheduled.toLocaleDateString()}{' '}
+                            {scheduled.toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
                           </span>
                           {isPast && (
                             <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-xs">
@@ -230,7 +237,7 @@ function MedicineCard({
                             size="sm"
                             variant="outline"
                             className="h-8 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
-                            onClick={() => onUpdateStatus(r.id, "taken")}
+                            onClick={() => onUpdateStatus(r.id, 'taken')}
                           >
                             <Check className="mr-1 h-3.5 w-3.5" /> Taken
                           </Button>
@@ -238,7 +245,7 @@ function MedicineCard({
                             size="sm"
                             variant="outline"
                             className="h-8 text-slate-500 hover:bg-slate-50"
-                            onClick={() => onUpdateStatus(r.id, "skipped")}
+                            onClick={() => onUpdateStatus(r.id, 'skipped')}
                           >
                             <SkipForward className="mr-1 h-3.5 w-3.5" /> Skip
                           </Button>
@@ -268,17 +275,20 @@ function MedicineCard({
               <Badge
                 key={r.id}
                 className={
-                  r.status === "taken"
-                    ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
-                    : "bg-slate-100 text-slate-500 hover:bg-slate-100"
+                  r.status === 'taken'
+                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-100'
                 }
               >
-                {r.status === "taken" ? (
+                {r.status === 'taken' ? (
                   <Check className="mr-1 h-3 w-3" />
                 ) : (
                   <X className="mr-1 h-3 w-3" />
                 )}
-                {new Date(r.scheduledAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                {new Date(r.scheduledAt).toLocaleDateString(undefined, {
+                  month: 'short',
+                  day: 'numeric',
+                })}
               </Badge>
             ))}
           </div>

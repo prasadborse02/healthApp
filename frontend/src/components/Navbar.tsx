@@ -1,8 +1,8 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Menu, X, HeartPulse } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { Menu, X, HeartPulse } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -12,7 +12,7 @@ export function Navbar() {
   const handleLogout = () => {
     logout();
     setOpen(false);
-    navigate({ to: "/login" });
+    navigate({ to: '/login' });
   };
 
   return (
@@ -31,14 +31,14 @@ export function Navbar() {
               <Link
                 to="/dashboard"
                 className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
-                activeProps={{ className: "bg-accent" }}
+                activeProps={{ className: 'bg-accent' }}
               >
                 Dashboard
               </Link>
               <Link
                 to="/medicines"
                 className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
-                activeProps={{ className: "bg-accent" }}
+                activeProps={{ className: 'bg-accent' }}
               >
                 Medicines
               </Link>
@@ -90,9 +90,7 @@ export function Navbar() {
                 >
                   Medicines
                 </Link>
-                <div className="px-3 py-1 text-xs text-muted-foreground">
-                  {user.email}
-                </div>
+                <div className="px-3 py-1 text-xs text-muted-foreground">{user.email}</div>
                 <Button variant="outline" size="sm" onClick={handleLogout}>
                   Logout
                 </Button>

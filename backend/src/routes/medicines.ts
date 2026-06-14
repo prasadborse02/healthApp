@@ -24,9 +24,8 @@ router.post(
   '/from-analysis/:analysisId',
   async (req: Request<{ analysisId: string }>, res: Response, next: NextFunction) => {
     try {
-      const timezoneOffset = typeof req.body?.timezoneOffset === 'number'
-        ? req.body.timezoneOffset
-        : 0;
+      const timezoneOffset =
+        typeof req.body?.timezoneOffset === 'number' ? req.body.timezoneOffset : 0;
       const medicines = await medicineService.createFromAnalysis(
         req.params.analysisId,
         req.userId!,

@@ -1,27 +1,27 @@
-import { createFileRoute, Link, useNavigate, Navigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { z } from "zod";
-import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { createFileRoute, Link, useNavigate, Navigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2 } from 'lucide-react';
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute('/login')({
   component: LoginPage,
 });
 
 const schema = z.object({
-  email: z.string().trim().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z.string().trim().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 function LoginPage() {
   const { login, token } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -42,8 +42,8 @@ function LoginPage() {
     setSubmitting(true);
     try {
       await login(parsed.data.email, parsed.data.password);
-      toast.success("Welcome back!");
-      navigate({ to: "/dashboard" });
+      toast.success('Welcome back!');
+      navigate({ to: '/dashboard' });
     } catch (err: any) {
       const data = err?.response?.data;
       if (data?.errors) {
@@ -53,7 +53,7 @@ function LoginPage() {
         });
         setErrors(fe);
       } else {
-        toast.error(data?.error || "Login failed");
+        toast.error(data?.error || 'Login failed');
       }
     } finally {
       setSubmitting(false);
@@ -86,7 +86,7 @@ function LoginPage() {
           Sign in
         </Button>
         <p className="text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
+          Don't have an account?{' '}
           <Link to="/signup" className="font-medium text-primary hover:underline">
             Sign up
           </Link>

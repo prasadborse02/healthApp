@@ -1,10 +1,6 @@
-import {
-  Outlet,
-  Link,
-  createRootRoute,
-} from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute } from '@tanstack/react-router';
 
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from '@/components/Navbar';
 
 function NotFoundComponent() {
   return (

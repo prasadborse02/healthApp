@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { api, fileUrl, type Submission, type Analysis, type MedicineRecord } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { api, fileUrl, type Submission, type Analysis, type MedicineRecord } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -21,9 +21,9 @@ import {
   FileText,
   Loader2,
   Sparkles,
-} from "lucide-react";
+} from 'lucide-react';
 
-export const Route = createFileRoute("/submissions/$id")({
+export const Route = createFileRoute('/submissions/$id')({
   component: () => (
     <ProtectedRoute>
       <SubmissionDetail />
@@ -42,7 +42,7 @@ function SubmissionDetail() {
     api
       .get<Submission>(`/submissions/${id}`)
       .then((r) => setSub(r.data))
-      .catch((e) => toast.error(e?.response?.data?.error || "Failed to load"))
+      .catch((e) => toast.error(e?.response?.data?.error || 'Failed to load'))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -51,9 +51,9 @@ function SubmissionDetail() {
     try {
       const { data } = await api.post<Analysis>(`/submissions/${id}/analyze`);
       setSub((prev) => (prev ? { ...prev, analysis: data } : prev));
-      toast.success("Analysis complete");
+      toast.success('Analysis complete');
     } catch (e: any) {
-      toast.error(e?.response?.data?.error || "Analysis failed");
+      toast.error(e?.response?.data?.error || 'Analysis failed');
     } finally {
       setAnalyzing(false);
     }
@@ -77,7 +77,7 @@ function SubmissionDetail() {
     );
   }
 
-  const isImage = sub.fileType.startsWith("image/");
+  const isImage = sub.fileType.startsWith('image/');
   const fileSrc = fileUrl(sub.filePath);
 
   return (
@@ -93,7 +93,11 @@ function SubmissionDetail() {
         <div className="min-w-0 space-y-4">
           <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
             {isImage ? (
-              <img src={fileSrc} alt={sub.fileName} className="w-full max-h-[60vh] object-contain" />
+              <img
+                src={fileSrc}
+                alt={sub.fileName}
+                className="w-full max-h-[60vh] object-contain"
+              />
             ) : (
               <div className="flex flex-col items-center gap-3 p-10 text-center">
                 <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary/10 text-primary">
@@ -167,14 +171,14 @@ function AnalysisView({ analysis }: { analysis: Analysis }) {
         timezoneOffset: new Date().getTimezoneOffset(),
       });
       setRemindersSet(true);
-      toast.success("Medicine reminders created!");
+      toast.success('Medicine reminders created!');
     } catch (e: unknown) {
       const err = e as { response?: { data?: { error?: string } } };
-      if (err?.response?.data?.error?.includes("already")) {
+      if (err?.response?.data?.error?.includes('already')) {
         setRemindersSet(true);
-        toast.info("Reminders already set up");
+        toast.info('Reminders already set up');
       } else {
-        toast.error(err?.response?.data?.error || "Failed to set up reminders");
+        toast.error(err?.response?.data?.error || 'Failed to set up reminders');
       }
     } finally {
       setSettingUp(false);
@@ -191,8 +195,8 @@ function AnalysisView({ analysis }: { analysis: Analysis }) {
         <div className="text-sm">
           <p className="font-semibold">Not medical advice</p>
           <p className="mt-0.5">
-            This analysis is AI-generated and is NOT medical advice. Always consult a
-            qualified healthcare professional before making any medical decisions.
+            This analysis is AI-generated and is NOT medical advice. Always consult a qualified
+            healthcare professional before making any medical decisions.
           </p>
         </div>
       </div>
@@ -229,7 +233,9 @@ function AnalysisView({ analysis }: { analysis: Analysis }) {
                     <TableCell>{m.dosage}</TableCell>
                     <TableCell>{m.frequency}</TableCell>
                     <TableCell className="hidden sm:table-cell">{m.duration}</TableCell>
-                    <TableCell className="hidden sm:table-cell text-muted-foreground">{m.instructions}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">
+                      {m.instructions}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -240,9 +246,7 @@ function AnalysisView({ analysis }: { analysis: Analysis }) {
 
       {analysis.doctorAdvice && (
         <Section title="Doctor's advice">
-          <p className="whitespace-pre-wrap text-sm text-foreground/90">
-            {analysis.doctorAdvice}
-          </p>
+          <p className="whitespace-pre-wrap text-sm text-foreground/90">{analysis.doctorAdvice}</p>
         </Section>
       )}
 
@@ -270,9 +274,13 @@ function AnalysisView({ analysis }: { analysis: Analysis }) {
           ) : (
             <Button onClick={setupReminders} disabled={settingUp} variant="outline">
               {settingUp ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Setting up...</>
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Setting up...
+                </>
               ) : (
-                <><Bell className="mr-2 h-4 w-4" /> Set up dose reminders</>
+                <>
+                  <Bell className="mr-2 h-4 w-4" /> Set up dose reminders
+                </>
               )}
             </Button>
           )}
