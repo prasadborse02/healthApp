@@ -28,6 +28,23 @@ The frontend is a single-page React application served by nginx. It communicates
 
 ---
 
+## Screenshots
+
+### Upload Prescription
+![New Submission](docs/submission.png)
+
+### AI Analysis Results
+![Analysis - Conditions & Medicines](docs/analysis1.png)
+![Analysis - Advice, Lifestyle & Reminders](docs/analysis2.png)
+
+### Medicine Reminders
+![Medicines & Dose Tracking](docs/medicines.png)
+
+### Dashboard
+![Prescriptions Dashboard](docs/dashborad.png)
+
+---
+
 ## Tech Stack
 
 | Layer          | Technology                                       |
@@ -383,4 +400,4 @@ Zod schemas validate input on both the frontend and backend. The backend never t
 
 4. **Single-host file storage** -- Files live on a Docker volume tied to a single host. Horizontal scaling or instance replacement would require migrating to object storage (e.g., S3).
 
-5. **No automated tests** -- The project does not include unit or integration tests.
+5. **Test coverage** -- Integration tests cover auth, submissions, and middleware. AI analysis and medicine services are not tested due to external API dependency.
