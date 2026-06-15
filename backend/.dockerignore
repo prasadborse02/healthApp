@@ -4,3 +4,5 @@ dist
 *.env.local
 *.log
 uploads
+src/__tests__
+jest.config.ts

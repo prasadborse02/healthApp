@@ -70,7 +70,11 @@ function parseAIResponse(responseText: string): AnalysisResult {
 
   // Check if AI detected a non-prescription image
   if (result.error === 'not_prescription') {
-    throw new AppError(400, result.doctorAdvice as string || 'The uploaded image does not appear to be a medical prescription.');
+    throw new AppError(
+      400,
+      (result.doctorAdvice as string) ||
+        'The uploaded image does not appear to be a medical prescription.',
+    );
   }
 
   // Validate expected fields
