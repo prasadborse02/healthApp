@@ -32,15 +32,17 @@ app.use('/api/medicines', medicinesRouter);
 
 app.use(errorHandler);
 
-const server = app.listen(config.port, () => {
-  logger.info({ port: config.port }, 'Server running');
-});
-
-process.on('SIGTERM', () => {
-  server.close(async () => {
-    await prisma.$disconnect();
-    process.exit(0);
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(config.port, () => {
+    logger.info({ port: config.port }, 'Server running');
   });
-});
+
+  process.on('SIGTERM', () => {
+    server.close(async () => {
+      await prisma.$disconnect();
+      process.exit(0);
+    });
+  });
+}
 
 export default app;
