@@ -123,6 +123,7 @@ export function Field({
   value,
   onChange,
   error,
+  hint,
   autoComplete,
 }: {
   id: string;
@@ -130,9 +131,11 @@ export function Field({
   type: string;
   value: string;
   onChange: (v: string) => void;
-  error?: string;
+  error?: string | string[];
+  hint?: string;
   autoComplete?: string;
 }) {
+  const errors = error ? (Array.isArray(error) ? error : [error]) : [];
   return (
     <div className="space-y-1.5">
       <Label htmlFor={id}>{label}</Label>
@@ -142,13 +145,20 @@ export function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         autoComplete={autoComplete}
-        aria-invalid={!!error}
-        aria-describedby={error ? `${id}-error` : undefined}
+        aria-invalid={errors.length > 0}
+        aria-describedby={errors.length ? `${id}-error` : undefined}
       />
-      {error && (
-        <p id={`${id}-error`} className="text-xs text-destructive">
-          {error}
-        </p>
+      {hint && errors.length === 0 && (
+        <p className="text-xs text-muted-foreground">{hint}</p>
+      )}
+      {errors.length > 0 && (
+        <ul id={`${id}-error`} className="space-y-0.5">
+          {errors.map((e, i) => (
+            <li key={i} className="text-xs text-destructive">
+              {e}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

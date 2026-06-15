@@ -36,14 +36,17 @@ function getMimeType(fileType: string): string {
 }
 
 function buildPrompt(symptoms: string): string {
-  return `Analyze this prescription and patient symptoms. Return ONLY valid JSON, no markdown.
+  return `First, determine if the uploaded image is a medical prescription. If it is NOT a prescription (e.g., a photo of a person, random image, unrelated document), return this exact JSON:
+{"error":"not_prescription","medicines":[],"doctorAdvice":"The uploaded image does not appear to be a medical prescription. Please upload a valid prescription document.","lifestyle":[],"diseases":[]}
+
+If it IS a valid prescription, analyze it along with the patient symptoms below. Return ONLY valid JSON, no markdown.
 
 Symptoms: ${symptoms}
 
 JSON format:
 {"medicines":[{"name":"","dosage":"","frequency":"","duration":"","instructions":""}],"doctorAdvice":"","lifestyle":[""],"diseases":[""]}
 
-Extract medicines from prescription. Infer conditions from prescription+symptoms. Be concise.`;
+Only include medicines that are explicitly written in the prescription. Do NOT invent or suggest medicines not present in the document. Infer conditions from prescription+symptoms. Be concise.`;
 }
 
 function parseAIResponse(responseText: string): AnalysisResult {
@@ -64,6 +67,11 @@ function parseAIResponse(responseText: string): AnalysisResult {
   }
 
   const result = parsed as Record<string, unknown>;
+
+  // Check if AI detected a non-prescription image
+  if (result.error === 'not_prescription') {
+    throw new AppError(400, result.doctorAdvice as string || 'The uploaded image does not appear to be a medical prescription.');
+  }
 
   // Validate expected fields
   if (

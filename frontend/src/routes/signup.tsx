@@ -16,10 +16,10 @@ const schema = z
     email: z.string().trim().email('Invalid email address'),
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Must contain an uppercase letter')
-      .regex(/[a-z]/, 'Must contain a lowercase letter')
-      .regex(/[0-9]/, 'Must contain a number'),
+      .min(8, 'At least 8 characters')
+      .regex(/[A-Z]/, 'At least one uppercase letter')
+      .regex(/[a-z]/, 'At least one lowercase letter')
+      .regex(/[0-9]/, 'At least one number'),
     confirm: z.string(),
   })
   .refine((d) => d.password === d.confirm, {
@@ -33,7 +33,7 @@ function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [submitting, setSubmitting] = useState(false);
 
   if (token) return <Navigate to="/dashboard" />;
@@ -43,9 +43,11 @@ function SignupPage() {
     setErrors({});
     const parsed = schema.safeParse({ email, password, confirm });
     if (!parsed.success) {
-      const fe: Record<string, string> = {};
+      const fe: Record<string, string[]> = {};
       parsed.error.issues.forEach((i) => {
-        fe[i.path[0] as string] = i.message;
+        const field = (i.path[0] as string) || 'form';
+        if (!fe[field]) fe[field] = [];
+        fe[field].push(i.message);
       });
       setErrors(fe);
       return;
@@ -55,14 +57,17 @@ function SignupPage() {
       await signup(parsed.data.email, parsed.data.password);
       toast.success('Account created!');
       navigate({ to: '/dashboard' });
-    } catch (err: any) {
-      const data = err?.response?.data;
-      if (err?.response?.status === 409) {
-        setErrors({ email: data?.error || 'Email already in use' });
+    } catch (err: unknown) {
+      const e = err as {
+        response?: { status?: number; data?: { error?: string; errors?: Record<string, string[]> } };
+      };
+      const data = e?.response?.data;
+      if (e?.response?.status === 409) {
+        setErrors({ email: [data?.error || 'Email already in use'] });
       } else if (data?.errors) {
-        const fe: Record<string, string> = {};
+        const fe: Record<string, string[]> = {};
         Object.entries(data.errors).forEach(([k, v]) => {
-          fe[k] = Array.isArray(v) ? (v[0] as string) : String(v);
+          fe[k] = Array.isArray(v) ? v.map(String) : [String(v)];
         });
         setErrors(fe);
       } else {
@@ -92,6 +97,7 @@ function SignupPage() {
           value={password}
           onChange={setPassword}
           error={errors.password}
+          hint="Min 8 characters, uppercase, lowercase, and a number"
           autoComplete="new-password"
         />
         <Field
