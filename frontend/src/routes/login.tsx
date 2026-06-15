@@ -148,9 +148,7 @@ export function Field({
         aria-invalid={errors.length > 0}
         aria-describedby={errors.length ? `${id}-error` : undefined}
       />
-      {hint && errors.length === 0 && (
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      )}
+      {hint && errors.length === 0 && <p className="text-xs text-muted-foreground">{hint}</p>}
       {errors.length > 0 && (
         <ul id={`${id}-error`} className="space-y-0.5">
           {errors.map((e, i) => (

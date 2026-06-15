@@ -59,7 +59,10 @@ function SignupPage() {
       navigate({ to: '/dashboard' });
     } catch (err: unknown) {
       const e = err as {
-        response?: { status?: number; data?: { error?: string; errors?: Record<string, string[]> } };
+        response?: {
+          status?: number;
+          data?: { error?: string; errors?: Record<string, string[]> };
+        };
       };
       const data = e?.response?.data;
       if (e?.response?.status === 409) {
