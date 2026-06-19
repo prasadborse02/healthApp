@@ -9,6 +9,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { authRouter } from './routes/auth';
 import { submissionsRouter } from './routes/submissions';
 import { medicinesRouter } from './routes/medicines';
+import { cleanupExpiredOtps } from './services/otp.service';
 
 const app = express();
 
@@ -48,7 +49,20 @@ if (process.env.NODE_ENV !== 'test') {
     logger.info({ port: config.port }, 'Server running');
   });
 
+  // Periodically hard-delete expired OTP rows so the table stays small.
+  // Verification already rejects expired codes regardless of this sweep.
+  const otpCleanupInterval = setInterval(
+    () => {
+      cleanupExpiredOtps().catch((err) =>
+        logger.error({ err }, 'OTP cleanup failed'),
+      );
+    },
+    5 * 60 * 1000,
+  );
+  otpCleanupInterval.unref();
+
   process.on('SIGTERM', () => {
+    clearInterval(otpCleanupInterval);
     server.close(async () => {
       await prisma.$disconnect();
       process.exit(0);

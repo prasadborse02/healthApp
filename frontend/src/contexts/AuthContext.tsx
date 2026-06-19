@@ -15,6 +15,8 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
+  verifyOtp: (email: string, code: string) => Promise<void>;
+  resendOtp: (email: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -50,8 +52,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signup = useCallback(async (email: string, password: string) => {
-    const { data } = await api.post('/auth/signup', { email, password });
+    // Signup no longer issues a token — it sends an email OTP. The caller
+    // navigates the user to the OTP verification screen.
+    await api.post('/auth/signup', { email, password });
+  }, []);
+
+  const verifyOtp = useCallback(async (email: string, code: string) => {
+    const { data } = await api.post('/auth/verify-otp', { email, code });
     persist(data.token, data.user);
+  }, []);
+
+  const resendOtp = useCallback(async (email: string) => {
+    await api.post('/auth/resend-otp', { email });
   }, []);
 
   const logout = useCallback(() => {
@@ -62,8 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, token, loading, login, signup, logout }),
-    [user, token, loading, login, signup, logout],
+    () => ({ user, token, loading, login, signup, verifyOtp, resendOtp, logout }),
+    [user, token, loading, login, signup, verifyOtp, resendOtp, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

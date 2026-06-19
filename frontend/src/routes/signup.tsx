@@ -55,8 +55,8 @@ function SignupPage() {
     setSubmitting(true);
     try {
       await signup(parsed.data.email, parsed.data.password);
-      toast.success('Account created!');
-      navigate({ to: '/dashboard' });
+      toast.success('Verification code sent to your email');
+      navigate({ to: '/verify-otp', search: { email: parsed.data.email } });
     } catch (err: unknown) {
       const e = err as {
         response?: {

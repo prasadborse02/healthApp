@@ -16,6 +16,15 @@ const authSchema = z.object({
     .regex(/[0-9]/, 'Password must contain at least one number'),
 });
 
+const verifyOtpSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits'),
+});
+
+const resendOtpSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
 authRouter.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = authSchema.safeParse(req.body);
@@ -26,7 +35,45 @@ authRouter.post('/signup', async (req: Request, res: Response, next: NextFunctio
     const { email, password } = result.data;
     const data = await authService.signup(email, password);
 
-    res.status(201).json(data);
+    res.status(202).json({
+      message: 'Verification code sent to your email',
+      ...data,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+authRouter.post('/verify-otp', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = verifyOtpSchema.safeParse(req.body);
+    if (!result.success) {
+      throw new AppError(400, 'Validation failed', formatZodErrors(result.error));
+    }
+
+    const { email, code } = result.data;
+    const data = await authService.verifyEmailOtp(email, code);
+
+    res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+authRouter.post('/resend-otp', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = resendOtpSchema.safeParse(req.body);
+    if (!result.success) {
+      throw new AppError(400, 'Validation failed', formatZodErrors(result.error));
+    }
+
+    const { email } = result.data;
+    const data = await authService.resendOtp(email);
+
+    res.status(200).json({
+      message: 'Verification code sent to your email',
+      ...data,
+    });
   } catch (err) {
     next(err);
   }
